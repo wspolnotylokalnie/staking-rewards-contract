@@ -19,15 +19,15 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
     IERC20 public rewardsToken;
     IERC20 public stakingToken;
     uint256 public periodFinish = 0;
-    uint256 public rewardRate = 0;
-    uint256 public rewardsDuration = 7 days;
+    uint256 public rewardRate = 11;
+    uint256 public rewardsDuration = 1 days;
     uint256 public lastUpdateTime;
     uint256 public rewardPerTokenStored;
-
+	address public VaultAddrs;
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
 
-    uint256 private _totalSupply;
+    uint256 private _totalSupply =10;
     mapping(address => uint256) private _balances;
 
     /* ========== CONSTRUCTOR ========== */
@@ -36,11 +36,13 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         address _owner,
         address _rewardsDistribution,
         address _rewardsToken,
-        address _stakingToken
+        address _stakingToken,
+		address _VaultAddrs
     ) public Owned(_owner) {
         rewardsToken = IERC20(_rewardsToken);
         stakingToken = IERC20(_stakingToken);
         rewardsDistribution = _rewardsDistribution;
+		VaultAddrs=_VaultAddrs;
     }
 
     /* ========== VIEWS ========== */
@@ -63,7 +65,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         }
         return
         rewardPerTokenStored.add(
-            lastTimeRewardApplicable().sub(lastUpdateTime).mul(rewardRate).mul(1e18).div(_totalSupply)
+            lastTimeRewardApplicable().sub(lastUpdateTime).mul(11).div(10).mul(1e18)
         );
     }
 
@@ -97,7 +99,8 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            rewardsToken.safeTransfer(msg.sender, reward);
+		//VaultAddrs.safeApprove(rewardsToken,msg.sender, reward);
+            rewardsToken.safeTransferFrom(rewardsToken,VaultAddrs,msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
     }
